@@ -5,31 +5,43 @@ import urllib.request
 import json
 import sys
 
-if __name__ == '__main__':
-    """docu"""
-    employee_id = int(sys.argv[1])
-    url_id = f'https://jsonplaceholder.typicode.com/users/{employee_id}'
-    api_response_employee = requests.get(url_id)
-    employee_json = api_response_employee.json()
-    EMPLOYEE_NAME = employee_json.get('name')
+import requests
+import sys
 
-    """docu"""
-    url_todo = 'https://jsonplaceholder.typicode.com/todos'
-    api_response_todos = requests.get(url_todo)
-    user_tasks_json = api_response_todos.json()
-    employee_todo = None
-    NUMBER_OF_DONE_TASKS = 0
-    TOTAL_NUMBER_OF_TASKS = 0
-    TASK_TITLE = []
-    for todo in user_tasks_json:
-        if todo.get("userId") == int(employee_id):
-            employee_todo = todo
-            if employee_todo.get('completed') is True:
-                NUMBER_OF_DONE_TASKS += 1
-                TASK_TITLE.append(todo['title'])
-            TOTAL_NUMBER_OF_TASKS += 1
 
-    print(f"Employee {EMPLOYEE_NAME} is done "
-          f"with tasks({NUMBER_OF_DONE_TASKS}/{TOTAL_NUMBER_OF_TASKS}):")
-    for task in TASK_TITLE:
-        print(f"\t {task}")
+if __name__ == "__main__":
+    # Check if an employee ID was provided as an argument
+    if len(sys.argv) < 2:
+        print("Usage: {} EMPLOYEE_ID".format(sys.argv[0]))
+        sys.exit(1)
+
+    # Retrieve employee ID from command line arguments
+    employee_id = sys.argv[1]
+
+    # Retrieve employee information from API
+    response_user = requests.get(
+        "https://jsonplaceholder.typicode.com/users/{}".format(employee_id))
+    response_todos = requests.get(
+        "https://jsonplaceholder.typicode.com/todos?userId={}".format(employee_id))
+
+    # Check if the employee ID is valid
+    if response_user.status_code != 200 or response_todos.status_code != 200:
+        print("Employee not found")
+        sys.exit(1)
+
+    # Parse employee information from response
+    employee_info = response_user.json()
+    employee_name = employee_info['name']
+
+    # Parse TODO list from response
+    todo_list = response_todos.json()
+    total_tasks = len(todo_list)
+    completed_tasks = [task for task in todo_list if task['completed']]
+    num_completed_tasks = len(completed_tasks)
+
+    # Print employee TODO list progress
+    print("Employee {} is done with tasks({}/{}):".format(
+        employee_name, num_completed_tasks, total_tasks))
+
+    for task in completed_tasks:
+        print("\t {}".format(task['title']))
