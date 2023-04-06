@@ -4,10 +4,11 @@
 import urllib.request
 import json
 import sys
+
 """API endpoint and employee ID"""
 url = f"https://jsonplaceholder.typicode.com/users/{sys.argv[1]}/todos"
 
-# Make API request
+"""make API request"""
 with urllib.request.urlopen(url) as response:
     data = json.loads(response.read().decode())
 
