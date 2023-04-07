@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-# docu
+"""docu"""
 
 import json
 import requests
