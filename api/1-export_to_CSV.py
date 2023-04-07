@@ -1,25 +1,34 @@
 #!/usr/bin/python3
 """docu"""
-
-import urllib.request
-import json
+import requests
 import sys
+import csv
 
-# API endpoint and employee ID
-url = f"https://jsonplaceholder.typicode.com/users/{sys.argv[1]}/todos"
+if __name__ == '__main__':
+    """ gets the employee name """
+    employee_id = int(sys.argv[1])
+    url_id = f'https://jsonplaceholder.typicode.com/users/{employee_id}'
+    api_response_employee = requests.get(url_id)
+    employee_json = api_response_employee.json()
+    USERNAME = employee_json.get('username')
 
-# Make API request
-with urllib.request.urlopen(url) as response:
-    data = json.loads(response.read().decode())
+    """ gets the list of tasks """
+    url_todo = f'https://jsonplaceholder.typicode.com/todos?userId={employee_id}'
+    api_response_todos = requests.get(url_todo)
+    tasks_json = api_response_todos.json()
 
-# Calculate TODO list progress
-total_tasks = len(data)
-completed_tasks = sum(todo["completed"] for todo in data)
-
-# Display TODO list progress
-print(f"Employee {data[0]['name']} is done with tasks ({completed_tasks}/{total_tasks}):")
-
-# Display completed tasks
-for todo in data:
-    if todo["completed"]:
-        print(f"\t{todo['title']}")
+    """ extracts relevant information and writes to CSV file """
+    filename = f'{employee_id}.csv'
+    with open(filename, mode='w', newline='') as csv_file:
+        fieldnames = ['USER_ID', 'USERNAME', 'TASK_COMPLETED_STATUS', 'TASK_TITLE']
+        writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+        writer.writeheader()
+        for task in tasks_json:
+            writer.writerow({
+                'USER_ID': task.get('userId'),
+                'USERNAME': USERNAME,
+                'TASK_COMPLETED_STATUS': task.get('completed'),
+                'TASK_TITLE': task.get('title')
+            })
+    
+    print(f'TODO list for user {USERNAME} has been saved to {filename}')
