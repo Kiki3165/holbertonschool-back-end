@@ -26,5 +26,5 @@ if __name__ == '__main__':
             'username': USERNAME
         })
     
-    with open(f'{USER_ID}.json', 'w') as json_file:
-        json.dump({USER_ID: tasks}, json_file)
+with open('todo_all_employees.json', 'w') as json_file:
+    json.dump(todo_all_employees, json_file)
