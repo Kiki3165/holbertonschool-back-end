@@ -1,47 +1,31 @@
 #!/usr/bin/python3
 """docu"""
 
-import urllib.request
-import json
-import sys
-
 import requests
 import sys
 
+# API endpoint and employee ID
+url = f"https://jsonplaceholder.typicode.com/users/{sys.argv[1]}/todos"
 
-if __name__ == "__main__":
-    # Check if an employee ID was provided as an argument
-    if len(sys.argv) < 2:
-        print("Usage: {} EMPLOYEE_ID".format(sys.argv[0]))
-        sys.exit(1)
+# Make API request
+response = requests.get(url)
 
-    # Retrieve employee ID from command line arguments
-    employee_id = sys.argv[1]
+# Check if API request was successful
+if response.status_code != 200:
+    print("Error: Could not retrieve TODO list data for employee ID", sys.argv[1])
+    sys.exit(1)
 
-    # Retrieve employee information from API
-    response_user = requests.get(
-        "https://jsonplaceholder.typicode.com/users/{}".format(employee_id))
-    response_todos = requests.get(
-        "https://jsonplaceholder.typicode.com/todos?userId={}".format(employee_id))
+# Parse JSON response
+todos = response.json()
 
-    # Check if the employee ID is valid
-    if response_user.status_code != 200 or response_todos.status_code != 200:
-        print("Employee not found")
-        sys.exit(1)
+# Calculate TODO list progress
+total_tasks = len(todos)
+completed_tasks = sum(todo["completed"] for todo in todos)
 
-    # Parse employee information from response
-    employee_info = response_user.json()
-    employee_name = employee_info['name']
+# Display TODO list progress
+print(f"Employee {todos[0]['name']} is done with tasks ({completed_tasks}/{total_tasks}):")
 
-    # Parse TODO list from response
-    todo_list = response_todos.json()
-    total_tasks = len(todo_list)
-    completed_tasks = [task for task in todo_list if task['completed']]
-    num_completed_tasks = len(completed_tasks)
-
-    # Print employee TODO list progress
-    print("Employee {} is done with tasks({}/{}):".format(
-        employee_name, num_completed_tasks, total_tasks))
-
-    for task in completed_tasks:
-        print("\t {}".format(task['title']))
+# Display completed tasks
+for todo in todos:
+    if todo["completed"]:
+        print(f"\t{todo['title']}")
