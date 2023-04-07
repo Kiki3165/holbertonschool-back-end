@@ -18,13 +18,11 @@ if __name__ == '__main__':
     api_response_tasks = requests.get(url_tasks)
     task_json = api_response_tasks.json()
 
-    tasks = []
+    data = {USER_ID: []}
     for task in task_json:
-        tasks.append({
-            'task': task['title'],
-            'completed': task['completed'],
-            'username': USERNAME
-        })
-    
-with open('todo_all_employees.json', 'w') as json_file:
-    json.dump(todo_all_employees, json_file)
+        data[USER_ID].append({"username": USERNAME,
+                              "task": task.get('title'),
+                              "completed": task.get('completed')})
+
+    with open(f'{USER_ID}.json', 'w') as json_file:
+        json.dump(data, json_file, indent=4)
