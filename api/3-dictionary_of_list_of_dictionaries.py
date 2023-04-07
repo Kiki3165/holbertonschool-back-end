@@ -6,12 +6,10 @@ import json
 
 if __name__ == '__main__':
     url = 'https://jsonplaceholder.typicode.com'
-
     users_response = requests.get(f'{url}/users')
     users_json = users_response.json()
-
     all_tasks = {}
-
+    """docu"""
     for user in users_json:
         user_id = user['id']
         username = user['username']
@@ -20,7 +18,7 @@ if __name__ == '__main__':
         tasks_json = tasks_response.json()
 
         user_tasks = []
-
+        """docu"""
         for task in tasks_json:
             task_title = task['title']
             task_completed = task['completed']
@@ -30,7 +28,7 @@ if __name__ == '__main__':
                 'completed': task_completed
             }
             user_tasks.append(user_task)
-
+        """docu"""
         all_tasks[user_id] = user_tasks
         with open(f'{user_id}.json', 'w') as f:
             json.dump(user_tasks, f)
