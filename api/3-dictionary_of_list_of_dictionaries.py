@@ -1,36 +1,32 @@
 #!/usr/bin/python3
 # docu
 
-import requests
 import json
+import requests
+import sys
+
 
 if __name__ == '__main__':
     url = 'https://jsonplaceholder.typicode.com'
-    users_response = requests.get(f'{url}/users')
-    users_json = users_response.json()
-    all_tasks = {}
-    """docu"""
-    for user in users_json:
-        user_id = user['id']
-        username = user['username']
+    url_id = f"{url}/users"
+    api_response_id = requests.get(url_id)
+    id_json = api_response_id.json()
 
-        tasks_response = requests.get(f'{url}/todos?userId={user_id}')
-        tasks_json = tasks_response.json()
+    employees_tasks = {}
 
-        user_tasks = []
-        """docu"""
+    for person in id_json:
+        id = person.get('id')
+        username = person.get('username')
+        url_tasks = f'{url}/todos?userId={id}'
+        api_response_tasks = requests.get(url_tasks)
+        tasks_json = api_response_tasks.json()
+        employee_dict = []
         for task in tasks_json:
-            task_title = task['title']
-            task_completed = task['completed']
-            user_task = {
-                'username': username,
-                'task': task_title,
-                'completed': task_completed
-            }
-            user_tasks.append(user_task)
-        """docu"""
-        all_tasks[user_id] = user_tasks
-        with open(f'{user_id}.json', 'w') as f:
-            json.dump(user_tasks, f)
-        with open('todo_all_employees.json', 'w') as f:
-            json.dump(all_tasks, f)
+            employee_tasks = {"username": username,
+                              "task": task.get('title'),
+                              "completed": task.get('completed')}
+            employee_dict.append(employee_tasks)
+        employees_tasks[id] = employee_dict
+
+    with open('todo_all_employees.json', 'w') as json_file:
+        json.dump(employees_tasks, json_file)
