@@ -1,9 +1,9 @@
 #!/usr/bin/python3
 """docu"""
 
+import json
 import requests
 import sys
-import json
 
 if __name__ == '__main__':
     url = 'https://jsonplaceholder.typicode.com'
@@ -20,11 +20,11 @@ if __name__ == '__main__':
 
     tasks = []
     for task in task_json:
-        dict_tasks = {"task": task.get('title'),
-                      "completed": task.get('completed'), "username": USERNAME}
-        tasks.append(dict_tasks)
-
-    all_tasks = {USER_ID: tasks}
-
+        tasks.append({
+            'task': task['title'],
+            'completed': task['completed'],
+            'username': USERNAME
+        })
+    
     with open(f'{USER_ID}.json', 'w') as json_file:
-        json.dump(all_tasks, json_file)
+        json.dump({USER_ID: tasks}, json_file)
